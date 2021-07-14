@@ -40,14 +40,17 @@ class Usuario {
         $this->dtcadastro = $value;
     }
 
+
+
+
+    //Irá trazer um usuário do ID específico 
     public function loadById($id){
         //Utilizar os dados da classe Sql 
         $sql = new Sql();
         //Vai retornar um resultado apenas pelo fato de ser ID, mesmo assim terá que ser feito um array dentro de outro array
         $results = $sql->select("SELECT * FROM usuarios WHERE idusuario = :ID", array(
             //Chave = valor. 
-            //:ID = Identificação do parâmetro
-            //$id é o valor
+            //:ID = Identificação do parâmetro = $id
             ":ID"=>$id
         ));
         //Count irá contar todos os valores de um array (no caso $results)
@@ -65,7 +68,55 @@ class Usuario {
         }
     }
 
+
+    // DAO LIST -----------------------------------------------------------------------------------------
+
+    //Trazer uma lista com todos os usuarios da tabela
+    //Este método não utilizou a palavra "this" (quando põe this, atribui valor a atributos, métodos, então está "amarrando" à classe), podendo então ser estático
+    public static function getList(){
+        $sql = new Sql();
+        return $sql -> select("SELECT * FROM usuarios ORDER BY deslogin;");
+
+    }
+    //Irá buscar por usuários
+    //Pegar o que digitar dentro da variável $login, vai colocar a % antes e % depois
+    //%% = Não importa se ele começa ou termina com uma letra
+    public static function search($login){
+        $sql = new Sql();
+        return $sql -> select("SELECT * FROM usuarios WHERE deslogin LIKE :SEARCH ORDER BY deslogin", array(
+            ':SEARCH' => "%".$login."%"  
+        ));
+    }
+
+    //Terá que passar login e senha por parâmetro, irá autenticar e ai carregar os dados do usuário
+    //Como vai utilizar get/set pra definir o usuário, não pode ser estático
+    public function login($login, $password){
+        //Utilizar os dados da classe Sql 
+        $sql = new Sql();
+        $results = $sql->select("SELECT * FROM usuarios WHERE deslogin = :LOGIN AND dessenha = :PASSWORD", array(
+            //Identificando os parâmetros, se trouxer um usuário, irá pro if e preencher com os set'ters
+            ":LOGIN"=>$login,
+            ":PASSWORD"=>$password
+        ));
+        //
+        if (count($results) > 0) {
+            //A primeira linha que resultou
+            $row = $results[0];
+            // passando $row(linha que está atualmente) passando o valor de nesta posição para cada variável, substituindo o $value na function acima
+            $this->setIdusuario($row['idusuario']);
+            $this->setDeslogin($row['deslogin']);
+            $this->setDessenha($row['dessenha']);
+            //new DateTime para vir no formato de data
+            $this->setDtcadastro(new DateTime($row['dtcadastro']));
+        }
+        else {
+            //Estourando erro
+            throw new Exception("Login e/ou senha inválidos.");
+        }
+    }
     
+    // ----------------------------------------------------------------------------------------------------------
+
     //Irá imprimir em formato json pelos métodos Get
     public function __toString(){
         return json_encode(array(
