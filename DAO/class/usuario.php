@@ -64,6 +64,8 @@ class Usuario {
             $this->setDtcadastro(new DateTime($row['dtcadastro']));
         }
     }
+
+    
     //Irá imprimir em formato json pelos métodos Get
     public function __toString(){
         return json_encode(array(
