@@ -50,5 +50,18 @@ $usuario -> login("leonardo", "root");
 echo $usuario;
 */
 
+//--------------------------------------------------------------------------
+
+//Gerará através da procedure um usuário, cadastrado pelo id e data de criação do próprio banco e no final imprimindo em JSON
+
+/* CASO NÃO TIVESSE O MÉTODO CONSTRUTOR 
+$aluno = new Usuario();
+$aluno -> setDeslogin("joao");
+$aluno -> setDessenha("root");
+*/
+$aluno = new Usuario ("luna", "root");
+$aluno -> insert();
+echo $aluno;
+
 
 ?>

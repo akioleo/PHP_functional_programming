@@ -67,7 +67,7 @@ class Usuario {
             $this->setDtcadastro(new DateTime($row['dtcadastro']));
         }
     }
-
+//OBS: O IF PODERÁ SER UTILIZADO PELO MÉTODO setDATA, SUBSTITUINDO TUDO POR "$this -> setData($results[0]);"
 
     // DAO LIST -----------------------------------------------------------------------------------------
 
@@ -100,14 +100,8 @@ class Usuario {
         ));
         //
         if (count($results) > 0) {
-            //A primeira linha que resultou
-            $row = $results[0];
-            // passando $row(linha que está atualmente) passando o valor de nesta posição para cada variável, substituindo o $value na function acima
-            $this->setIdusuario($row['idusuario']);
-            $this->setDeslogin($row['deslogin']);
-            $this->setDessenha($row['dessenha']);
-            //new DateTime para vir no formato de data
-            $this->setDtcadastro(new DateTime($row['dtcadastro']));
+            $this -> setData($results[0]);
+
         }
         else {
             //Estourando erro
@@ -115,7 +109,33 @@ class Usuario {
         }
     }
     
-    // ----------------------------------------------------------------------------------------------------------
+    // Método para o result (SET) --------------------------------------------------------------------------------
+    
+    //Como está utilizando o código grande várias vezes, a solução é criar um método para enxugar
+    public function setData($data){
+            $this->setIdusuario($data['idusuario']);
+            $this->setDeslogin($data['deslogin']);
+            $this->setDessenha($data['dessenha']);
+            $this->setDtcadastro(new DateTime($data['dtcadastro']));
+    }
+
+
+    // INSERT -----------------------------------------------------------------------------------------------------
+
+    public function insert(){
+        $sql = new Sql();
+
+        //Como é MySQL, a chamadaprocedure é CALL e parâmetros entre parênteses, em caso de SQL Server, seria EXECUTE
+        $results = $sql -> select("CALL sp_usuarios_insert(:LOGIN, :PASSWORD)", array(
+            'LOGIN' => $this -> getDeslogin(),
+            ':PASSWORD' => $this -> getDessenha()
+        ));
+        if(count($results) > 0) {
+            $this -> setData($results[0]);
+        }
+    }
+
+    // CONSTRUTORES --------------------------------------------------------------------------------------------------
 
     //Irá imprimir em formato json pelos métodos Get
     public function __toString(){
@@ -126,6 +146,21 @@ class Usuario {
             "dtcadastro"=>$this->getDtcadastro()->format("d/m/Y H:i:s")
         ));
     }
-}
 
+    //Recebe o login e senha pelo construtor
+    //Será facilitado no index ao fazer um insert que precisaria deste insert
+    //Como foi método construtor com os parâmetros, todo lugar que fosse chamar o Usuario, teria que colocar os parâmetros (login e senha)
+    //Como alterativa, colocar as aspas no parâmetro ($login = "") em que torna opcional a passagem de um valor, caso não seja preenchido, será null
+    public function __construct($login = "", $password = ""){
+            $this -> setDeslogin($login);
+            $this -> setDessenha($password);
+    }
+
+
+
+
+
+
+
+}
 ?>
