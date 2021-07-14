@@ -8,7 +8,7 @@ class Sql extends PDO {
     public function __construct(){
     //Conexão ao banco
     //Também poderia passar os dados como parâmetros no método construtor (bom para mais servidores, bancos ou usuários)
-        $this -> connect = new PDO ("mysql:host=localhost;dbname=dbphp", "root", "");
+        $this -> connect = new PDO ("mysql:host=localhost;dbname=dnphp7", "root", "");
     }
 
     private function setParams($statement, $parameters = array()){
